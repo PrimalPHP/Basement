@@ -1,6 +1,5 @@
 server {
 	listen 80;
-	#server_name watchn.tv.dev;
 	root /vagrant/app/www;
 	index index.html index.htm index.php;
 
