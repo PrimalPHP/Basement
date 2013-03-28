@@ -1,0 +1,13 @@
+{
+	"require":{
+
+	},
+	"autoload":{
+		"classmap":[
+			"app/classes"
+		]
+	},
+	"config": {
+        "vendor-dir": "app/vendor"
+    }
+}
