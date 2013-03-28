@@ -1,6 +1,13 @@
 #Basement
 
-A composer + vagrant boilerplate for building PHP applications.
+A [composer](http://getcomposer.org) + [vagrant](http://vagrantup.com) boilerplate for building PHP applications.
+
+To get started with this boilerplate, fork or download this repository to a location on your development system and run the following two commands from inside the project directory:
+
+- `composer install`
+- `vagrant up`
+
+Once these tasks finish you will have a working PHP development environment running at http://192.168.33.10/
 
 ##Ubuntu 12.04
 The vagrant & puppet configuration will create an Ubuntu 12.04 64bit server running:
