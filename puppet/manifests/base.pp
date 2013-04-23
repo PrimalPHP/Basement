@@ -4,22 +4,6 @@ Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
 class system-update {
 
-    file { "/etc/apt/sources.list.d/dotdeb.list":
-        owner  => root,
-        group  => root,
-        mode   => 664,
-        source => "/vagrant/conf/apt/dotdeb.list",
-    }
-
-    exec { 'dotdeb-apt-key':
-        cwd     => '/tmp',
-        command => "wget http://www.dotdeb.org/dotdeb.gpg -O dotdeb.gpg &&
-                    cat dotdeb.gpg | apt-key add -",
-        unless  => 'apt-key list | grep dotdeb',
-        require => File['/etc/apt/sources.list.d/dotdeb.list'],
-        notify  => Exec['apt-get update'],
-    }
-
   exec { 'apt-get update':
     command => 'apt-get update',
   }
@@ -31,33 +15,29 @@ class system-update {
   }
 }
 
-class nginx {
+class apache2 {
 
-  package { 'nginx':
-  	ensure => present,
-  	require => Exec['apt-get update'],
+  package { "apache2":
+    ensure  => present,
+    require => Exec["apt-get update"],
   }
 
-  service { 'nginx':
-  	ensure => running,
-  	require => Package['nginx'],
+  service { "apache2":
+    ensure  => "running",
+    require => Package["apache2"],
   }
 
-  file { "/etc/nginx/sites-available/php-fpm":
-    owner  => root,
-    group  => root,
-    mode   => 664,
-    source => "/vagrant/conf/nginx/default",
-    require => Package["nginx"],
-    notify => Service["nginx"],
-  }
-
-  file { "/etc/nginx/sites-enabled/default":
-    owner  => root,
+  file { '/etc/apache2/sites-enabled/000-default':
     ensure => link,
-    target => "/etc/nginx/sites-available/php-fpm",
-    require => Package["nginx"],
-    notify => Service["nginx"],
+    target => "/vagrant/puppet/conf/apache/000-default",
+    notify => Service['apache2'],
+    force  => true
+  }
+
+  file { '/etc/apache2/mods-enabled/rewrite.load':
+    ensure => link,
+    target => "/etc/apache2/mods-available/rewrite.load",
+    notify => Service['apache2']
   }
 
 }
@@ -97,9 +77,9 @@ class mysql {
   }
 }
 
-class php-fpm {
+class php {
 
-    package { 'php5-cli':
+    package { 'php5':
       ensure => present,
       require => Exec['apt-get update']
     }
@@ -108,39 +88,26 @@ class php-fpm {
         owner  => root,
         group  => root,
         mode   => 664,
-        require => Package['php5-cli'],
-        source => "/vagrant/conf/php/custom.ini",
-        notify => Service['php5-fpm'],
-    }
-
-    file { "/etc/php5/fpm/pool.d/www.conf":
-        owner  => root,
-        group  => root,
-        mode   => 664,
-        require => Package['php5-fpm'],
-        source => "/vagrant/conf/php-fpm/www.conf",
-        notify => Service['php5-fpm'],
+        require => Package['php5'],
+        source => "/vagrant/puppet/conf/php/custom.ini",
+        notify => Service['php5'],
     }
 
     package { [
-      'php5-fpm',
       'php5-mysqlnd',
-      'php5-gd',
       'php5-sqlite',
       'php5-xdebug',
-      'php5-apc',
       'php5-mcrypt',
-      'php5-curl',
-      'php5-memcache'
+      'php5-curl'
       ]:
         ensure => 'present',
-        require => Package['php5-cli'],
+        require => Package['php5'],
     }
 
-    service { 'php5-fpm':
+    service { 'php5':
         ensure => running,
-        require => Package['php5-fpm'],
-        notify => Service['php5-fpm'],
+        require => Package['php5'],
+        notify => Service['php5'],
     }
 }
 
@@ -156,6 +123,5 @@ class groups {
 include groups
 include system-update
 include mysql
-include nginx
-include php-fpm
-
+include apache2
+include php
