@@ -1,6 +1,8 @@
-#Basement
+#Basement-apache
 
 A [composer](http://getcomposer.org) + [vagrant](http://vagrantup.com) boilerplate for building PHP applications.
+
+*This branch is the Apache version of Basement. Go to master for the Nginx version.*
 
 To get started with this boilerplate, fork or download this repository to a location on your development system and run the following two commands from inside the project directory:
 
@@ -10,12 +12,11 @@ To get started with this boilerplate, fork or download this repository to a loca
 Once these tasks finish you will have a working PHP development environment running at http://192.168.33.10/
 
 ##Ubuntu 12.04
-The vagrant & puppet configuration will create an Ubuntu 12.04 64bit server running:
+The vagrant & puppet configuration will create an Ubuntu 12.04 32bit server running:
 
 - PHP 5.4
 - MySQL 5.5
-- Nginx
-- PHP-FPM
+- Apache
 
 It will then install configuration making the `/app/www` into the web root, and route all requests for files that do not exist into `/app/www/index.php` (which includes `/app/main.php`).  Inside the VM, all these files will exist in the `/vagrant/` path.
 
@@ -48,3 +49,9 @@ This repo also includes a phpunit.xml file configured to include the composer au
 Composer does not get installed within the vm, so it will need to be present on the host OS.  The composer.json file is configured to load all libraries into `/app/vendor`, including the autoloader files.
 
 Composer is also configured to generate a classmap of the entire contents of `/app/classes`.
+
+##Extra Info
+
+To access the VM, go to the root of the project and run a `vagrant ssh` . You will find the document root at /vagrant . This is useful for checking apache error logs.
+
+You can change php.ini and apache default settings in the `puppet/conf` directory.
